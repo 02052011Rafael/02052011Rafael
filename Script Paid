@@ -46,7 +46,7 @@ if not whitelist[LocalPlayer.Name] then
     LocalPlayer:Kick("No estas en WhiteList para usar este script")
 end
 
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/rafael25ic-blip/phoenix-cracked/refs/heads/main/Librerya%20Phoenix%20Crack"))()
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/02052011Rafael/02052011Rafael/refs/heads/main/Librerya%20Toxic"))()
 
 local player = game.Players.LocalPlayer
 local displayName = player.DisplayName or player.Name
