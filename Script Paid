@@ -1690,26 +1690,30 @@ local function checkCharacter()
     return player.Character
 end
 
--- Improved tool equipping function with error handling
 local function gettool()
     pcall(function()
-        -- Check if we have a character and humanoid
-        if not game.Players.LocalPlayer.Character or 
-           not game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-            return
-        end
-        
-        -- Try to equip the punch tool
-        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if v.Name == "Punch" then
-                game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+        if not character or not character:FindFirstChild("Humanoid") then return end
+
+        -- Buscar la herramienta Punch
+        local punchTool = nil
+        for _, tool in pairs(player.Backpack:GetChildren()) do
+            if tool.Name == "Punch" then
+                punchTool = tool
                 break
             end
         end
-        
-        -- Fire the punch events
-        game:GetService("Players").LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-        game:GetService("Players").LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+
+        -- Equipar y activar Punch si existe
+        if punchTool then
+            character.Humanoid:EquipTool(punchTool)
+            punchTool:Activate() -- <- Esto hace que se vea la animación
+        end
+
+        -- Disparar el evento al servidor para el daño
+        player.muscleEvent:FireServer("punch", "leftHand")
+        player.muscleEvent:FireServer("punch", "rightHand")
     end)
 end
 
@@ -2111,6 +2115,232 @@ killerTab:AddSwitch("Matar BlackList", function(state)
             end
         end)
     end
+end)
+
+
+killerTab:AddSwitch("Fast punch", function(state)
+	_G.autoPunchActive = state
+	if state then
+		task.spawn(function()
+			while _G.autoPunchActive do
+				local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+				if punch then
+					punch.Parent = LocalPlayer.Character
+					if punch:FindFirstChild("attackTime") then
+						punch.attackTime.Value = 0
+					end
+				end
+				task.wait()
+			end
+		end)
+		task.spawn(function()
+			while _G.autoPunchActive do
+				local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+				if punch then
+					punch:Activate()
+				end
+				task.wait()
+			end
+		end)
+	else
+		local punch = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Punch")
+		if punch then
+			punch.Parent = LocalPlayer.Backpack
+		end
+	end
+end)
+
+
+local button = killerTab:AddButton("Quitar la animación al puño", function()
+    local blockedAnimations = {
+        ["rbxassetid://3638729053"] = true,
+        ["rbxassetid://3638767427"] = true,
+    }
+
+    local function setupAnimationBlocking()
+        local char = game.Players.LocalPlayer.Character
+        if not char or not char:FindFirstChild("Humanoid") then return end
+
+        local humanoid = char:FindFirstChild("Humanoid")
+
+        for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
+            if track.Animation then
+                local animId = track.Animation.AnimationId
+                local animName = track.Name:lower()
+
+                if blockedAnimations[animId] or
+                    animName:match("punch") or
+                    animName:match("attack") or
+                    animName:match("right") then
+                    track:Stop()
+                end
+            end
+        end
+
+        if not _G.AnimBlockConnection then
+            local connection = humanoid.AnimationPlayed:Connect(function(track)
+                if track.Animation then
+                    local animId = track.Animation.AnimationId
+                    local animName = track.Name:lower()
+
+                    if blockedAnimations[animId] or
+                        animName:match("punch") or
+                        animName:match("attack") or
+                        animName:match("right") then
+                        track:Stop()
+                    end
+                end
+            end)
+
+            _G.AnimBlockConnection = connection
+        end
+    end
+
+    setupAnimationBlocking()
+
+    local function overrideToolActivation()
+        local function processTool(tool)
+            if tool and (tool.Name == "Punch" or tool.Name:match("Attack") or tool.Name:match("Right")) then
+                if not tool:GetAttribute("ActivatedOverride") then
+                    tool:SetAttribute("ActivatedOverride", true)
+
+                    local connection = tool.Activated:Connect(function()
+                        task.wait(0.05)
+
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("Humanoid") then
+                            for _, track in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
+                                if track.Animation then
+                                    local animId = track.Animation.AnimationId
+                                    local animName = track.Name:lower()
+
+                                    if blockedAnimations[animId] or
+                                        animName:match("punch") or
+                                        animName:match("attack") or
+                                        animName:match("right") then
+                                        track:Stop()
+                                    end
+                                end
+                            end
+                        end
+                    end)
+
+                    if not _G.ToolConnections then
+                        _G.ToolConnections = {}
+                    end
+                    _G.ToolConnections[tool] = connection
+                end
+            end
+        end
+
+        for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            processTool(tool)
+        end
+
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            for _, tool in pairs(char:GetChildren()) do
+                if tool:IsA("Tool") then
+                    processTool(tool)
+                end
+            end
+        end
+
+        if not _G.BackpackAddedConnection then
+            _G.BackpackAddedConnection = game.Players.LocalPlayer.Backpack.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end
+
+        if not _G.CharacterToolAddedConnection and char then
+            _G.CharacterToolAddedConnection = char.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end
+    end
+
+    overrideToolActivation()
+
+    if not _G.AnimMonitorConnection then
+        _G.AnimMonitorConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if tick() % 0.5 < 0.01 then
+                local char = game.Players.LocalPlayer.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    for _, track in pairs(char.Humanoid:GetPlayingAnimationTracks()) do
+                        if track.Animation then
+                            local animId = track.Animation.AnimationId
+                            local animName = track.Name:lower()
+
+                            if blockedAnimations[animId] or
+                                animName:match("punch") or
+                                animName:match("attack") or
+                                animName:match("right") then
+                                track:Stop()
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end
+
+    if not _G.CharacterAddedConnection then
+        _G.CharacterAddedConnection = game.Players.LocalPlayer.CharacterAdded:Connect(function(newChar)
+            task.wait(1)
+            setupAnimationBlocking()
+            overrideToolActivation()
+
+            if _G.CharacterToolAddedConnection then
+                _G.CharacterToolAddedConnection:Disconnect()
+            end
+
+            _G.CharacterToolAddedConnection = newChar.ChildAdded:Connect(function(child)
+                if child:IsA("Tool") then
+                    task.wait(0.1)
+                    processTool(child)
+                end
+            end)
+        end)
+    end
+end)
+
+function RecoveryPunch()
+    if _G.AnimBlockConnection then
+        _G.AnimBlockConnection:Disconnect()
+        _G.AnimBlockConnection = nil
+    end
+    if _G.AnimMonitorConnection then
+        _G.AnimMonitorConnection:Disconnect()
+        _G.AnimMonitorConnection = nil
+    end
+    if _G.ToolConnections then
+        for _, conn in pairs(_G.ToolConnections) do
+            if conn then conn:Disconnect() end
+        end
+        _G.ToolConnections = nil
+    end
+    if _G.BackpackAddedConnection then
+        _G.BackpackAddedConnection:Disconnect()
+        _G.BackpackAddedConnection = nil
+    end
+    if _G.CharacterToolAddedConnection then
+        _G.CharacterToolAddedConnection:Disconnect()
+        _G.CharacterToolAddedConnection = nil
+    end
+    if _G.CharacterAddedConnection then
+        _G.CharacterAddedConnection:Disconnect()
+        _G.CharacterAddedConnection = nil
+    end
+end
+
+killerTab:AddButton("Regresar La Animacion Al Puño", function()
+    RecoveryPunch()
 end)
 
 
