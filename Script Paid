@@ -1951,38 +1951,51 @@ local autoKillAllSwitch = killerTab:AddSwitch("Automatically Remove Everyone (Ex
 end)
 
 
-local spyTargetDropdown = killerTab:AddDropdown("Seleccionar Jugador Para Ver", function(displayName)
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player.DisplayName == displayName then
-            targetPlayerName = player.Name
-            break
-        end
-    end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local spyTargetDropdownItems = {}
+local targetPlayerName
+
+local spyTargetDropdown = killerTab:AddDropdown("Seleccionar Jugador Para Ver", function(selectedText)
+	for _, player in ipairs(Players:GetPlayers()) do
+		local combined = string.format("%s (%s)", player.DisplayName, player.Name)
+		if combined == selectedText then
+			targetPlayerName = player.Name
+			break
+		end
+	end
 end)
 
+-- 🔹 Agregar jugadores actuales
 for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        spyTargetDropdown:Add(player.DisplayName)
-        spyTargetDropdownItems[player.Name] = player.DisplayName
-    end
+	if player ~= LocalPlayer then
+		local combined = string.format("%s (%s)", player.DisplayName, player.Name)
+		spyTargetDropdown:Add(combined)
+		spyTargetDropdownItems[player.Name] = combined
+	end
 end
 
+-- 🔹 Cuando entra un jugador nuevo
 Players.PlayerAdded:Connect(function(player)
-    if player ~= LocalPlayer then
-        spyTargetDropdown:Add(player.DisplayName)
-        spyTargetDropdownItems[player.Name] = player.DisplayName
-    end
+	if player ~= LocalPlayer then
+		local combined = string.format("%s (%s)", player.DisplayName, player.Name)
+		spyTargetDropdown:Add(combined)
+		spyTargetDropdownItems[player.Name] = combined
+	end
 end)
 
+-- 🔹 Cuando se va un jugador
 Players.PlayerRemoving:Connect(function(player)
-    if player ~= LocalPlayer then
-        spyTargetDropdownItems[player.Name] = nil
-        spyTargetDropdown:Clear()
-        for _, displayName in pairs(spyTargetDropdownItems) do
-            spyTargetDropdown:Add(displayName)
-        end
-    end
+	if player ~= LocalPlayer then
+		spyTargetDropdownItems[player.Name] = nil
+		spyTargetDropdown:Clear()
+		for _, combined in pairs(spyTargetDropdownItems) do
+			spyTargetDropdown:Add(combined)
+		end
+	end
 end)
+
 
 killerTab:AddSwitch("Ver Jugador", function(bool)
     spying = bool
