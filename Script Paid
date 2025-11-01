@@ -79,7 +79,7 @@ AutoFarm:Show()
 getgenv()._AutoRepFarmEnabled = false  
 
 -- Switch en la librería
-AutoFarm:AddSwitch("Strength Op (Use it if your minimum ping is 250 ms)", function(state)
+AutoFarm:AddSwitch("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
