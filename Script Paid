@@ -53,7 +53,7 @@ local displayName = player.DisplayName or player.Name
 
 local window = library:AddWindow("Toxic Paid V3 | Bienvenido " .. displayName, {
     main_color = Color3.fromRGB(0, 0, 0),
-    min_size = Vector2.new(610, 850),
+    min_size = Vector2.new(630, 900),
     can_resize = false,
 })
 
@@ -95,10 +95,10 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
-local REPS_PER_CYCLE = 60
+local REPS_PER_CYCLE = 120
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 1
-local MAX_PING = 5000   -- si pasa esto, pausa
+local MAX_PING = 4000   -- si pasa esto, pausa
 local MIN_PING = 300   -- si baja de esto, reanuda
 
 -- Variables internas
