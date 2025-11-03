@@ -326,51 +326,42 @@ end)
 
 AutoFarm:AddSwitch("Anti Lag (Full Black)", function(State)
     local lighting = game:GetService("Lighting")
-    local playerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-
-    -- GUI negra
-    local blackoutGui = playerGui:FindFirstChild("BlackoutGui")
-
     if State then
-        if not blackoutGui then
-            blackoutGui = Instance.new("ScreenGui")
-            blackoutGui.Name = "BlackoutGui"
-            blackoutGui.IgnoreGuiInset = true
-            blackoutGui.ResetOnSpawn = false
-            blackoutGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-            blackoutGui.Parent = playerGui
-
-            local blackFrame = Instance.new("Frame")
-            blackFrame.Size = UDim2.new(1, 0, 1, 0)
-            blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-            blackFrame.BorderSizePixel = 0
-            blackFrame.Name = "BlackFrame"
-            blackFrame.Parent = blackoutGui
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") or obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
+                obj:Destroy()
+            end
         end
-        blackoutGui.Enabled = true
-
-        -- Simplificar efectos de Lighting sin destruir nada
+        for _, v in pairs(lighting:GetChildren()) do
+            if v:IsA("Sky") then v:Destroy() end
+        end
+        local darkSky = Instance.new("Sky")
+        darkSky.Name = "DarkSky"
+        darkSky.SkyboxBk = "rbxassetid://0"
+        darkSky.SkyboxDn = "rbxassetid://0"
+        darkSky.SkyboxFt = "rbxassetid://0"
+        darkSky.SkyboxLf = "rbxassetid://0"
+        darkSky.SkyboxRt = "rbxassetid://0"
+        darkSky.SkyboxUp = "rbxassetid://0"
+        darkSky.Parent = lighting
         lighting.Brightness = 0
         lighting.ClockTime = 0
+        lighting.TimeOfDay = "00:00:00"
         lighting.OutdoorAmbient = Color3.new(0,0,0)
         lighting.Ambient = Color3.new(0,0,0)
         lighting.FogColor = Color3.new(0,0,0)
         lighting.FogEnd = 100
-
-    else
-        if blackoutGui then
-            blackoutGui.Enabled = false
-        end
-
-        -- Restaurar iluminación normal
-        lighting.Brightness = 2
-        lighting.ClockTime = 14
-        lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-        lighting.Ambient = Color3.fromRGB(128, 128, 128)
-        lighting.FogColor = Color3.fromRGB(255, 255, 255)
-        lighting.FogEnd = 100000
+        task.spawn(function()
+            while State do
+                task.wait(5)
+                if not lighting:FindFirstChild("DarkSky") then
+                    darkSky:Clone().Parent = lighting
+                end
+            end
+        end)
     end
 end)
+
 
 
 AutoFarm:AddSwitch("Anti AFK", function(state)
