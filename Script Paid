@@ -327,6 +327,9 @@ end)
 AutoFarm:AddSwitch("Anti Lag (Full Black)", function(State)
     local lighting = game:GetService("Lighting")
     if State then
+        for _, gui in pairs(LocalPlayer.PlayerGui:GetChildren()) do
+            if gui:IsA("ScreenGui") then gui:Destroy() end
+        end
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("ParticleEmitter") or obj:IsA("PointLight") or obj:IsA("SpotLight") or obj:IsA("SurfaceLight") then
                 obj:Destroy()
