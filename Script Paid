@@ -11,7 +11,7 @@ local whitelist = {
     ["H0rizon18"] = true,
     [""] = true,
     [""] = true,
-    ["ilopo124"] = true,
+    [""] = true,
     ["Mathi_sann"] = true,
     ["ghost_secu4"] = true,
     ["erneoroytxd"] = true,
@@ -43,7 +43,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 if not whitelist[LocalPlayer.Name] then
-    LocalPlayer:Kick("No estas en WhiteList para usar este script")
+    LocalPlayer:Kick("Comparteme el ugphone pinche perrita ")
 end
 
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/02052011Rafael/02052011Rafael/refs/heads/main/Librerya%20Toxic"))()
