@@ -1,4 +1,4 @@
--- My son billy
+-- My son h3ll
 local whitelist = {
     ["Rafael25IC"] = true,
     ["elpepe2929290"] = true,
@@ -2182,7 +2182,7 @@ killerTab:AddSwitch("Fast punch", function(state)
 end)
 
 
-jillerTab:AddSwitch("Auto Kill A Todos", function(bool)
+killerTab:AddSwitch("Auto Kill A Todos", function(bool)
     autoKill = bool
 
     task.spawn(function()
