@@ -1,4 +1,4 @@
--- My son 
+-- My son billy
 local whitelist = {
     ["Rafael25IC"] = true,
     ["elpepe2929290"] = true,
@@ -2180,6 +2180,47 @@ killerTab:AddSwitch("Fast punch", function(state)
 		end
 	end
 end)
+
+
+jillerTab:AddSwitch("Auto Kill A Todos", function(bool)
+    autoKill = bool
+
+    task.spawn(function()
+        while autoKill do
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local rightHand = character:FindFirstChild("RightHand")
+            local leftHand = character:FindFirstChild("LeftHand")
+
+            local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+            if punch and not character:FindFirstChild("Punch") then
+                punch.Parent = character
+            end
+
+            if rightHand and leftHand then
+                for _, target in ipairs(Players:GetPlayers()) do
+                    if target ~= LocalPlayer and not playerWhitelist[target.Name] then
+                        local targetChar = target.Character
+                        local rootPart = targetChar and targetChar:FindFirstChild("HumanoidRootPart")
+                        if rootPart then
+                            pcall(function()
+                                firetouchinterest(rightHand, rootPart, 1)
+                                firetouchinterest(leftHand, rootPart, 1)
+                                firetouchinterest(rightHand, rootPart, 0)
+                                firetouchinterest(leftHand, rootPart, 0)
+                            end)
+                        end
+                    end
+                end
+            end
+
+            task.wait(0.05)
+        end
+    end)
+end)
+
+local targetDropdownItems = {}
+local targetPlayerNames = {}
+local selectedTarget = nil
 
 
 local button = killerTab:AddButton("Quitar la animación al puño", function()
