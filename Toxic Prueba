@@ -88,12 +88,13 @@ end)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
-local LocalPlayer = Players.LocalPlayer
 local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
 
 -- Configuración
 local PET_NAME = "Swift Samurai"
-local ROCK_NAME = "Ancient Jungle Rock"
+local ROCK_NAME = "Ancient Jungle Rock" -- nombre exacto del modelo
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
 local REPS_PER_CYCLE = 180
@@ -143,31 +144,37 @@ local function eatProteinEgg()
     end
 end
 
--- ✅ Golpea la roca sin moverte
+-- ✅ Golpea la roca "Ancient Jungle Rock" directamente
 local function hitRock()
-    local rock = Workspace:FindFirstChild(ROCK_NAME)
     local char = LocalPlayer.Character
-    if not rock or not char then return end
+    if not char then return end
 
     local leftHand = char:FindFirstChild("LeftHand")
     local rightHand = char:FindFirstChild("RightHand")
     local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
 
-    if leftHand and rightHand and muscleEvent then
-        -- Simula toque de manos sobre la roca (aunque no estés cerca)
-        firetouchinterest(rock, leftHand, 0)
-        firetouchinterest(rock, leftHand, 1)
-        firetouchinterest(rock, rightHand, 0)
-        firetouchinterest(rock, rightHand, 1)
+    if not (leftHand and rightHand and muscleEvent) then return end
 
-        -- Envía los golpes reales
-        for i = 1, 5 do
-            muscleEvent:FireServer("punch", "leftHand")
-            muscleEvent:FireServer("punch", "rightHand")
-            task.wait(0.01)
+    -- Buscar dentro de machinesFolder la roca con ese nombre exacto
+    for _, model in pairs(Workspace.machinesFolder:GetChildren()) do
+        if model.Name == ROCK_NAME and model:FindFirstChild("Rock") then
+            local rockPart = model.Rock
+
+            -- Simula toque de manos
+            firetouchinterest(rockPart, rightHand, 0)
+            firetouchinterest(rockPart, rightHand, 1)
+            firetouchinterest(rockPart, leftHand, 0)
+            firetouchinterest(rockPart, leftHand, 1)
+
+            -- Golpes reales
+            for i = 1, 5 do
+                muscleEvent:FireServer("punch", "leftHand")
+                muscleEvent:FireServer("punch", "rightHand")
+                task.wait(0.05)
+            end
+
+            break -- ya encontró la roca
         end
-    else
-        warn("[Auto Rep Farm] No se encontró la roca o las manos.")
     end
 end
 
