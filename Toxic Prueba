@@ -99,7 +99,7 @@ local REPS_PER_CYCLE = 180
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 1
 local MAX_PING = 3000   -- si pasa esto, pausa
-local MIN_PING = 300   -- si baja de esto, reanuda
+local MIN_PING = 300    -- si baja de esto, reanuda
 
 -- Variables internas
 local HumanoidRootPart
@@ -142,20 +142,13 @@ local function eatProteinEgg()
     end
 end
 
--- 🔥 Función modificada para golpear la roca "Ancient Jungle Rock"
+-- 🔥 Golpea la roca desde lejos sin moverse
 local function hitRock()
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        updateCharacterRefs()
-    end
-
     local rock = workspace:FindFirstChild(ROCK_NAME)
     if not rock then
         warn("[Auto Rep Farm] No se encontró la roca:", ROCK_NAME)
         return
     end
-
-    -- Mueve al jugador frente a la roca
-    HumanoidRootPart.CFrame = rock.CFrame * CFrame.new(0, 0, -6)
 
     local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
     if not rEvents then
@@ -163,19 +156,28 @@ local function hitRock()
         return
     end
 
-    -- Usa el evento correcto para golpear
+    -- Golpea directamente la roca sin moverte
     if rEvents:FindFirstChild("hitRockEvent") then
         rEvents.hitRockEvent:FireServer(rock)
     elseif rEvents:FindFirstChild("hitRock") then
         rEvents.hitRock:FireServer(rock)
     elseif rEvents:FindFirstChild("hitEvent") then
         rEvents.hitEvent:FireServer("hit", rock)
+    end
+
+    -- 👊 Ejecuta el golpe (punch) sin moverse
+    if rEvents:FindFirstChild("punchEvent") then
+        rEvents.punchEvent:FireServer()
+    elseif rEvents:FindFirstChild("repEvent") then
+        rEvents.repEvent:FireServer("rep")
+    elseif LocalPlayer:FindFirstChild("muscleEvent") then
+        LocalPlayer.muscleEvent:FireServer("rep")
     else
-        warn("[Auto Rep Farm] No se encontró ningún evento para golpear la roca.")
+        warn("[Auto Rep Farm] No se encontró ningún evento de punch o rep.")
     end
 end
 
--- Loop principal (siempre corriendo)
+-- Loop principal
 task.spawn(function()
     updateCharacterRefs()
     equipPet()
@@ -188,23 +190,18 @@ task.spawn(function()
         if getgenv()._AutoRepFarmEnabled then
             local ping = getPing()
 
-            -- Pausa si ping alto
             if ping > MAX_PING then
                 if not farmingPaused then
                     warn("[Auto Rep Farm] Ping alto ("..math.floor(ping).."ms), pausando farmeo...")
                     farmingPaused = true
                 end
-            end
-
-            -- Reanuda si ping bajo
-            if ping <= MIN_PING then
+            elseif ping <= MIN_PING then
                 if farmingPaused then
                     warn("[Auto Rep Farm] Ping bajo ("..math.floor(ping).."ms), reanudando farmeo...")
                     farmingPaused = false
                 end
             end
 
-            -- Solo farmea si no está pausado
             if not farmingPaused then
                 if LocalPlayer:FindFirstChild("muscleEvent") then
                     for i = 1, REPS_PER_CYCLE do
