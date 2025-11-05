@@ -98,7 +98,7 @@ local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
 local REPS_PER_CYCLE = 180
 local REP_DELAY = 0.01
-local ROCK_INTERVAL = 0.1
+local ROCK_INTERVAL = 0.01
 local MAX_PING = 3000
 local MIN_PING = 300
 
@@ -164,7 +164,7 @@ local function hitRock()
         for i = 1, 5 do
             muscleEvent:FireServer("punch", "leftHand")
             muscleEvent:FireServer("punch", "rightHand")
-            task.wait(0.05)
+            task.wait(0.01)
         end
     else
         warn("[Auto Rep Farm] No se encontró la roca o las manos.")
