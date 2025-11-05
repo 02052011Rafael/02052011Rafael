@@ -89,6 +89,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
+local Workspace = game:GetService("Workspace")
 
 -- Configuración
 local PET_NAME = "Swift Samurai"
@@ -97,9 +98,9 @@ local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
 local REPS_PER_CYCLE = 180
 local REP_DELAY = 0.01
-local ROCK_INTERVAL = 1
-local MAX_PING = 3000   -- si pasa esto, pausa
-local MIN_PING = 300    -- si baja de esto, reanuda
+local ROCK_INTERVAL = 0.1
+local MAX_PING = 3000
+local MIN_PING = 300
 
 -- Variables internas
 local HumanoidRootPart
@@ -142,38 +143,31 @@ local function eatProteinEgg()
     end
 end
 
--- 🔥 Golpea la roca desde lejos sin moverse
+-- ✅ Golpea la roca sin moverte
 local function hitRock()
-    local rock = workspace:FindFirstChild(ROCK_NAME)
-    if not rock then
-        warn("[Auto Rep Farm] No se encontró la roca:", ROCK_NAME)
-        return
-    end
+    local rock = Workspace:FindFirstChild(ROCK_NAME)
+    local char = LocalPlayer.Character
+    if not rock or not char then return end
 
-    local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
-    if not rEvents then
-        warn("[Auto Rep Farm] No se encontró la carpeta rEvents en ReplicatedStorage.")
-        return
-    end
+    local leftHand = char:FindFirstChild("LeftHand")
+    local rightHand = char:FindFirstChild("RightHand")
+    local muscleEvent = LocalPlayer:FindFirstChild("muscleEvent")
 
-    -- Golpea directamente la roca sin moverte
-    if rEvents:FindFirstChild("hitRockEvent") then
-        rEvents.hitRockEvent:FireServer(rock)
-    elseif rEvents:FindFirstChild("hitRock") then
-        rEvents.hitRock:FireServer(rock)
-    elseif rEvents:FindFirstChild("hitEvent") then
-        rEvents.hitEvent:FireServer("hit", rock)
-    end
+    if leftHand and rightHand and muscleEvent then
+        -- Simula toque de manos sobre la roca (aunque no estés cerca)
+        firetouchinterest(rock, leftHand, 0)
+        firetouchinterest(rock, leftHand, 1)
+        firetouchinterest(rock, rightHand, 0)
+        firetouchinterest(rock, rightHand, 1)
 
-    -- 👊 Ejecuta el golpe (punch) sin moverse
-    if rEvents:FindFirstChild("punchEvent") then
-        rEvents.punchEvent:FireServer()
-    elseif rEvents:FindFirstChild("repEvent") then
-        rEvents.repEvent:FireServer("rep")
-    elseif LocalPlayer:FindFirstChild("muscleEvent") then
-        LocalPlayer.muscleEvent:FireServer("rep")
+        -- Envía los golpes reales
+        for i = 1, 5 do
+            muscleEvent:FireServer("punch", "leftHand")
+            muscleEvent:FireServer("punch", "rightHand")
+            task.wait(0.05)
+        end
     else
-        warn("[Auto Rep Farm] No se encontró ningún evento de punch o rep.")
+        warn("[Auto Rep Farm] No se encontró la roca o las manos.")
     end
 end
 
