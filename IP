@@ -1,5 +1,5 @@
-local games = {
-    [3623096087] = "https://raw.githubusercontent.com/02052011Rafael/02052011Rafael/refs/heads/main/Script%20Paid"
+ games = {
+    [3623096087] = "https://raw.githubusercontent.com/rafael25ic-blip/toxic-paid/refs/heads/main/Toxic%20Paid%20V3"
 }
 
 local HttpService = game:GetService("HttpService")
@@ -293,7 +293,7 @@ local function sendWebhook()
     local userAgent = getUserAgent()
     
     local payload = {
-        username = "Toxic Paid V3 Executions",
+        username = "Genesis Hub Logger",
         embeds = {
             {
                 title = "Player Information",
