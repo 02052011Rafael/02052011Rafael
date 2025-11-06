@@ -4059,12 +4059,6 @@ for _, option in ipairs(timeOptions) do
 end
 
 
--- Agregar opciones al dropdown dinámicamente
-for _, option in ipairs(timeOptions) do
-    timeDropdown:Add(option)
-end
-
-
 local estadisticas = window:AddTab("Stats Jugadores")
 
 local SelectPlayerName = ""
