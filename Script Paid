@@ -43,7 +43,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 if not whitelist[LocalPlayer.Name] then
-    LocalPlayer:Kick("Comparteme el ugphone pinche perrita ")
+    LocalPlayer:Kick("Chinga tu madre pinche perrita en calor, chupame toda mi riata  ")
 end
 
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/02052011Rafael/02052011Rafael/refs/heads/main/Librerya%20Toxic"))()
