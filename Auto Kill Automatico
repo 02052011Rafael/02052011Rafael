@@ -254,26 +254,22 @@ end
 
 task.spawn(autoPunch)
 
-getgenv().AutoKillGlobal = not getgenv().AutoKillGlobal
+getgenv().AutoKillGlobal = true
 
 if getgenv().AutoKillGlobal then
     print("☠️ AutoKill Global ACTIVADO")
 
     local player = game.Players.LocalPlayer
-
     local function getHand()
         local char = player.Character or player.CharacterAdded:Wait()
         return char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm")
     end
 
-    local hand
-
-    player.CharacterAdded:Connect(function(char)
+    local hand = getHand()
+    player.CharacterAdded:Connect(function()
         task.wait(1)
         hand = getHand()
     end)
-
-    hand = getHand()
 
     task.spawn(function()
         while getgenv().AutoKillGlobal do
@@ -281,31 +277,28 @@ if getgenv().AutoKillGlobal then
                 hand = getHand()
             end
             if hand and hand:IsDescendantOf(workspace) then
-                for _, other in pairs(game.Players:GetPlayers()) do
+                for _, other in ipairs(game.Players:GetPlayers()) do
                     if other ~= player and other.Character then
-                        local targetPart = other.Character:FindFirstChild("HumanoidRootPart")
-                        if targetPart and targetPart:IsDescendantOf(workspace) then
+                        local target = other.Character:FindFirstChild("HumanoidRootPart")
+                        if target then
                             pcall(function()
-                                firetouchinterest(hand, targetPart, 0)
-                                task.wait(0.05) -- pausa razonable
-                                firetouchinterest(hand, targetPart, 1)
+                                firetouchinterest(hand, target, 0)
+                                task.wait(0.05)
+                                firetouchinterest(hand, target, 1)
                             end)
-                            task.wait(0.05)
                         end
                     end
                 end
-            else
-                task.wait(0.5)
             end
             task.wait(0.1)
         end
-        print("🛑 AutoKill Global DESACTIVADO")
     end)
-
 else
     print("🛑 AutoKill Global DESACTIVADO")
 end
 
+task.spawn(function()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     pcall(function()
         local tool = char:FindFirstChildOfClass("Tool")
         if tool then
