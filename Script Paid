@@ -72,7 +72,6 @@ local spyTargetDropdownItems = {}
 local targetPlayerName = ""
 
 local AutoFarm = window:AddTab("Farm OP")
-AutoFarm:Show()
 
 
 -- Estado inicial
@@ -1622,6 +1621,7 @@ end)
 
 
 local killerTab = window:AddTab("Killer")
+killerTab:Show()
 
 local titleLabel = killerTab:AddLabel("Select damage or durability pet")
 titleLabel.TextSize = 18
