@@ -4758,7 +4758,7 @@ end)
 
 
 local Gift = window:AddTab("Gift")
-Gift:AddLabel("Gifting Protein egg:").TextSize = 22
+Gift:AddLabel("Regalar Huevo Proteina:").TextSize = 22
 
 local proteinEggLabel = Gift:AddLabel("Protein Eggs: 0")
 proteinEggLabel.TextSize = 20
@@ -4766,7 +4766,7 @@ proteinEggLabel.TextSize = 20
 local selectedEggPlayer = nil
 local eggCount = 0
 
-local eggDropdown = Gift:AddDropdown("Player to Gift Eggs", function(selectedDisplayName)
+local eggDropdown = Gift:AddDropdown("Elije Jugador para Regalar Eggs", function(selectedDisplayName)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr.DisplayName == selectedDisplayName then
             selectedEggPlayer = plr
@@ -4787,11 +4787,11 @@ Players.PlayerAdded:Connect(function(plr)
     end
 end)
 
-Gift:AddTextBox("Amount of Eggs", function(text)
+Gift:AddTextBox("Cantidad de Eggs", function(text)
     eggCount = tonumber(text) or 0
 end)
 
-Gift:AddButton("Gift Eggs", function()
+Gift:AddButton("Regalar Eggs", function()
     if selectedEggPlayer and eggCount > 0 then
         for i = 1, eggCount do
             local egg = Players.LocalPlayer.consumablesFolder:FindFirstChild("Protein Egg")
@@ -4803,15 +4803,15 @@ Gift:AddButton("Gift Eggs", function()
     end
 end)
 
-Gift:AddLabel("Gifting Tropical Shakes:").TextSize = 22
+Gift:AddLabel("Piñas:").TextSize = 22
 
-local tropicalShakeLabel = Gift:AddLabel("Tropical Shakes: 0")
+local tropicalShakeLabel = Gift:AddLabel("Piñas: 0")
 tropicalShakeLabel.TextSize = 18
 
 local selectedShakePlayer = nil
 local shakeCount = 0
 
-local shakeDropdown = Gift:AddDropdown("Player to Gift Tropical Shakes", function(selectedDisplayName)
+local shakeDropdown = Gift:AddDropdown("Elije Jugador para Regalar Piñas", function(selectedDisplayName)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr.DisplayName == selectedDisplayName then
             selectedShakePlayer = plr
@@ -4832,11 +4832,11 @@ Players.PlayerAdded:Connect(function(plr)
     end
 end)
 
-Gift:AddTextBox("Tropical Shakes gift", function(text)
+Gift:AddTextBox("Regalo de Piñas", function(text)
     shakeCount = tonumber(text) or 0
 end)
 
-Gift:AddButton("Gift Tropical Shakes", function()
+Gift:AddButton("Regalar Piñas", function()
     if selectedShakePlayer and shakeCount > 0 then
         for i = 1, shakeCount do
             local shake = Players.LocalPlayer.consumablesFolder:FindFirstChild("Tropical Shake")
@@ -4870,7 +4870,7 @@ end
 task.spawn(function()
     while true do
         updateItemCount()
-        task.wait(0.25)
+        task.wait(0.1)
     end
 end)
 
